@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const UserModel = new Schema(
     {
         firstname: "string",
-        flastname: "string",
+        lastname: "string",
         email: {
             type: "string",
             trim: true,

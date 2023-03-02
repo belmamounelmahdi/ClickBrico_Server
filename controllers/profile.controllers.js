@@ -13,7 +13,7 @@ const AddProfile = async (req, res) => {
                     req.body.user = req.user.id
                     await ProfileModel.create(req.body)
                     res.status(200).json({message: "Success"})
-                }else {
+                } else {
                     await ProfileModel.findOneAndUpdate(
                         {_id: profile._id}, 
                         req.body,

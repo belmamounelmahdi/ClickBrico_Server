@@ -6,6 +6,9 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 var indexRouter = require('./routes/index');
 const passport = require('passport');
+const avisRoute = require("./routes/avis");
+const serviceRoute = require("./routes/services");
+const messageRoute = require('./routes/message')
 
 var app = express();
 
@@ -14,6 +17,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/', avisRoute);
+app.use('/', serviceRoute);
+app.use('/', messageRoute);
 
 
 
@@ -29,6 +35,7 @@ mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("Connected to db"))
 .catch(err => console.log(err))
 app.use('/api', indexRouter);
+
 
 
 module.exports = app;

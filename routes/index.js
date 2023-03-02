@@ -8,6 +8,8 @@ const {
 const passport = require("passport");
 const { ROLES, inRole } = require("../security/Rolemiddleware");
 const { AddProfile, FindAllProfiles, FindSingleProfile, DeleteProfile } = require("../controllers/profile.controllers");
+const { AddAvis } = require("../controllers/avis.controllers");
+const Avis = require("../models/avis.models");
 var router = express.Router();
 
 /* Users Route. */
@@ -37,6 +39,24 @@ FindSingleProfile);
 
 
 // AVIS
+router.post("/submitavis", async (req, res) => {
+  console.log(req.body.avis)
+  try {
+      const avis = new Avis({
+          nom: req.body.nom,
+          title: req.body.title,
+          avis: req.body.avis
+      });
+      // Save quote in db
+      const saveAvis = avis.save();
+      // Redirect to avis if success
+      res.send("Submited")
+
+  }catch(err){
+      res.send(err);
+  }
+});
+
 
 
 // ADMIN
