@@ -40,19 +40,57 @@ const ProfileJobber = new mongoose.Schema({
 })
 const profiles = mobileDB.model('profiles', ProfileJobber)
 
+// router.get('/service-electriciens', async (req, res) => {
+//     try {
+//         const jobberList = await jobbers.find({ service: "électricien" }).populate('profile');
+//         const jobberProfiles = jobberList.map(jobber => {
+//             return {
+//                 jobber: jobber,
+//                 profile: jobber.profile
+//             };
+//         });
+//         res.json(jobberProfiles);
+//     } catch (error) {
+//         console.log(error);
+//         res.status(404).send('Erreur serveur');
+//     }
+// });
 router.get('/service-electriciens', async (req, res) => {
     try {
-        const jobberList = await jobbers.find({ service: "électricien" });
-        const jobberProfiles = await Promise.all(jobberList.map(async jobber => {
-            const jobberProfile = await profiles.findOne({ jobberId: jobber._id });
-            return { jobber, profile: jobberProfile };
-        }));
-        res.json(jobberProfiles);
+      const jobberProfiles = await jobbers.aggregate([
+        { $match: { service: "électricien" } },
+        {
+          $lookup: {
+            from: "profiles",
+            localField: "_id",
+            foreignField: "user",
+            as: "profile"
+          }
+        },
+        { $unwind: "$profile" }
+      ]);
+      res.json(jobberProfiles);
     } catch (error) {
-        console.log(error);
-        res.status(404).send('Erreur serveur');
+      console.log(error);
+      res.status(404).send('Erreur serveur');
     }
-});
+  });
+  
+
+
+// router.get('/service-electriciens', async (req, res) => {
+//     try {
+//         const jobberList = await jobbers.find({ service: "électricien" });
+//         const jobberProfiles = await Promise.all(jobberList.map(async jobber => {
+//             const jobberProfile = await profiles.findOne({ jobberId: jobber._id });
+//             return { jobber, profile: jobberProfile };
+//         }));
+//         res.json(jobberProfiles);
+//     } catch (error) {
+//         console.log(error);
+//         res.status(404).send('Erreur serveur');
+//     }
+// });
 
 // router.get('/profiles-jobbers', async (req, res) => {
 //     try {
