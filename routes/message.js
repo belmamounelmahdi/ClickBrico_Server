@@ -10,7 +10,7 @@ const mobileDB = mongoose.createConnection(MOBILE_URI, {
     useUnifiedTopology: true,
 });
 
-
+// Créer le schéma pour les messages
 const messageSchema = new mongoose.Schema({
   body: {
     type: String,
@@ -22,7 +22,7 @@ const messageSchema = new mongoose.Schema({
   },
   recipient: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'jobbers',
     required: true
   },
   createdAt: {
@@ -30,10 +30,33 @@ const messageSchema = new mongoose.Schema({
     default: Date.now
   }
 });
+// Créer le modèle pour les messages
+const message = mobileDB.model('messages', messageSchema);
 
-const message = mongoose.model('message', messageSchema);
 
-module.exports = message;
+// const messageSchema = new mongoose.Schema({
+//   body: {
+//     type: String,
+//     required: true
+//   },
+//   sender: {
+//     type: String,
+//     required: true
+//   },
+//   recipient: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: 'User',
+//     required: true
+//   },
+//   createdAt: {
+//     type: Date,
+//     default: Date.now
+//   }
+// });
+
+// const message = mongoose.model('message', messageSchema);
+
+// module.exports = message;
 
 const JobberModel = new mongoose.Schema({
     name: "string",
@@ -64,56 +87,77 @@ async function connectToDatabase() {
     }
 }
 
-async function insertMessage(message) {
-    const client = await MongoClient.connect(URI, { useNewUrlParser: true, useUnifiedTopology: true });
-    const db = client.db('message');
-    const messages = db.collection('message');
+// async function insertMessage(message) {
+//     const client = await MongoClient.connect(URI, { useNewUrlParser: true, useUnifiedTopology: true });
+//     const db = client.db('message');
+//     const messages = db.collection('message');
   
-    // Récupérer l'ID du destinataire à partir de l'email
-    const recipient = await jobbers.findOne({ email: message.recipient });
-    if (!recipient) {
-      throw new Error('Recipient not found');
-    }
+//     // Récupérer l'ID du destinataire à partir de l'email
+//     const recipient = await jobbers.findOne({ email: message.recipient });
+//     if (!recipient) {
+//       throw new Error('Recipient not found');
+//     }
   
-    // Ajouter l'ID du destinataire à l'objet de message
-    message.recipientId = recipient._id;
+//     // Ajouter l'ID du destinataire à l'objet de message
+//     message.recipientId = recipient._id;
   
-    // Insérer le message dans la base de données
-    await messages.insertOne(message);
-    console.log('Message inserted into the database!');
+//     // Insérer le message dans la base de données
+//     await messages.insertOne(message);
+//     console.log('Message inserted into the database!');
   
-    // Fermer la connexion
-    client.close();
-  }
+//     // Fermer la connexion
+//     client.close();
+//   }
 
 // Appel de la fonction connectToDatabase() pour se connecter à la base de données
-connectToDatabase();
+// connectToDatabase();
+
+// Définir une route POST pour insérer un message dans la base de données
+// router.post('/send-message', async (req, res) => {
+//     try {
+//         const { sender, recipient, body } = req.body;
+//         const db = msg.db('message');
+//         const jobbersCollection = mobileDB.collection('jobbers');
+//         const provider = await jobbersCollection.findOne({ email: recipient });
+//         if (!provider) {
+//             throw new Error('Invalid recipient');
+//         }
+//         const newMessage = new message({
+//             sender,
+//             recipient: provider._id,
+//             body
+//         });
+//         await newMessage.save();
+//         console.log('Message inserted into the database!');
+//         res.status(200).json({ message: 'Message inserted into the database!' });
+//     } catch (err) {
+//         console.error('Failed to insert message into the database:', err);
+//         res.status(500).json({ error: 'Failed to insert message into the database' });
+//     }
+// });
 
 // Définir une route POST pour insérer un message dans la base de données
 router.post('/send-message', async (req, res) => {
-    try {
-        const { sender, recipient, body } = req.body;
-        const db = msg.db('message');
-        const jobbersCollection = mobileDB.collection('jobbers');
-        const provider = await jobbersCollection.findOne({ email: recipient });
-        if (!provider) {
-            throw new Error('Invalid recipient');
-        }
-        const newMessage = new message({
-            sender,
-            recipient: provider._id,
-            body
-        });
-        await newMessage.save();
-        console.log('Message inserted into the database!');
-        res.status(200).json({ message: 'Message inserted into the database!' });
-    } catch (err) {
-        console.error('Failed to insert message into the database:', err);
-        res.status(500).json({ error: 'Failed to insert message into the database' });
-    }
+  try {
+      const { sender, recipient, body } = req.body;
+      const jobbersCollection = mobileDB.collection('jobbers');
+      const provider = await jobbersCollection.findOne({ email: recipient });
+      if (!provider) {
+          throw new Error('Invalid recipient');
+      }
+      const newMessage = new message({
+          sender,
+          recipient: provider._id,
+          body
+      });
+      await newMessage.save();
+      console.log('Message inserted into the database!');
+      res.status(200).json({ message: 'Message inserted into the database!' });
+  } catch (err) {
+      console.error('Failed to insert message into the database:', err);
+      res.status(500).json({ error: 'Failed to insert message into the database' });
+  }
 });
-
-
 
 module.exports = router;
 
