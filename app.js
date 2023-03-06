@@ -9,8 +9,13 @@ const passport = require('passport');
 const avisRoute = require("./routes/avis");
 const serviceRoute = require("./routes/services");
 const messageRoute = require('./routes/message')
+const cors = require('cors');
 
 var app = express();
+
+// Configure CORS
+app.use(cors());
+
 
 app.use(logger('dev'));
 app.use(express.json());
